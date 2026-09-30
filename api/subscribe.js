@@ -1,8 +1,3 @@
-// Vercel serverless function: adds an opt-in to your Flodesk segment.
-// Set these in Vercel > Project > Settings > Environment Variables:
-//   FLODESK_API_KEY     your Flodesk API key
-//   FLODESK_SEGMENT_ID  the ID of your "Find Your Product" segment
-
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -13,15 +8,14 @@ module.exports = async (req, res) => {
   const email = String(body.email || "").trim().toLowerCase();
   const firstName = String(body.first_name || "").trim().slice(0, 80);
 
-  // Honeypot: real people never fill this hidden field
   if (body.website) return res.status(200).json({ ok: true });
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: "Please enter a valid email address." });
   }
 
-  const key = process.env.FLODESK_API_KEY;
-  const segment = process.env.FLODESK_SEGMENT_ID;
+  const key = (process.env.FLODESK_API_KEY || "").trim();
+  const segment = (process.env.FLODESK_SEGMENT_ID || "").trim();
   if (!key || !segment) {
     return res.status(500).json({ error: "Signup isn't configured yet." });
   }
